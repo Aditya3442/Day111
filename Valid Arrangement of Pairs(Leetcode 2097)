@@ -1,0 +1,49 @@
+class Solution {
+    public int[][] validArrangement(int[][] pairs) {
+        Map<Integer, Deque<Integer>> mat= new HashMap<>();
+        Map<Integer, Integer> ind= new HashMap<>();
+        Map<Integer, Integer> oud= new HashMap<>();
+        for (int[] i: pairs) {
+            int start = i[0];
+            int end = i[1];
+            mat.computeIfAbsent(start, k -> new ArrayDeque<>()).add(end);
+            oud.put(start, oud.getOrDefault(start, 0) + 1);
+            ind.put(end, ind.getOrDefault(end, 0) + 1);
+        }
+        List<Integer> res= new ArrayList<>();
+        int num= -1;
+        for (int node : oud.keySet()) {
+            if (oud.get(node) == ind.getOrDefault(node, 0) + 1) {
+                num= node;
+                break;
+            }
+        }
+        if (num== -1) {
+            num= pairs[0][0];
+        }
+        mark(num, mat, res);
+        Collections.reverse(res);
+        int[][] arr= new int[res.size() - 1][2];
+        for (int i = 1; i < res.size(); i++) {
+            arr[i - 1] = new int[] {
+                res.get(i - 1),
+                res.get(i),
+            };
+        }
+
+        return arr;
+    }
+
+    public void mark(
+        int node,
+        Map<Integer, Deque<Integer>> adjMatrix,
+        List<Integer> res
+    ) {
+        Deque<Integer> neighbors = adjMatrix.get(node);
+        while (neighbors != null && !neighbors.isEmpty()) {
+            int nextNode = neighbors.pollFirst();
+            mark(nextNode, adjMatrix, res);
+        }
+        res.add(node);
+    }
+}
